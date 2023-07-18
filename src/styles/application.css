@@ -1,3 +1,8 @@
 .inAndEnter{
-	-fx-background-color: white;
+	-fx-background-color: rgb(80, 175, 70);
+}
+
+.punchBttn{
+	-fx-min-width: 60px;
+	-fx-min-height: 60px;
 }

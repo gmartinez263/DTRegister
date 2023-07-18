@@ -3,23 +3,19 @@ package application;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Scanner;
-import java.util.Set;
-
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -32,11 +28,18 @@ public class DTRMain extends Application{
 	//VBox to hold the console where employees are to input data and the enter button
 	VBox inAndEnter;
 	Employee currEmp;
+	Button punchBttn;
 	
    @Override
    public void start(Stage primaryStage){
 	   Button enter = new Button("Enter");   
+	   punchBttn = new Button("Punch In/Out");
 	   promptMessage = new Label("Enter employee ID");
+	   
+	   //Initialize and set up the Hbox to hold operations employee can take
+	   HBox operations = new HBox(10, punchBttn);
+	   operations.setPadding(new Insets(10));
+	   punchBttn.getStyleClass().add("punchBttn");
 	   
 	   //initialize and set up all specifications for the inAndEnter VBox
 	   inAndEnter = new VBox(10, promptMessage, console,  enter);
@@ -52,7 +55,7 @@ public class DTRMain extends Application{
 	   enter.setOnAction(e -> checkInput());
 	   
 	   //setup for the program window
-	   VBox mainVBox = new VBox(name, inAndEnter);
+	   VBox mainVBox = new VBox(name, inAndEnter, operations);
 	   Scene scene = new Scene(mainVBox, 400, 200);
 	   scene.getStylesheets().add(getClass().getResource("/styles/application.css").toString());
 	   primaryStage.setScene(scene);
@@ -61,44 +64,54 @@ public class DTRMain extends Application{
    }
 
    private void checkInput() {
-	   Timeline timeline;
 	   String data = console.getText();
 	   
-	   if(promptMessage.getText() == "Enter employee ID") {
-		   try {
-			   currEmp = employees.get(data);
-			   empName.setText(currEmp.getName());
-			   promptMessage.setText("Enter Password");
-		   }catch(NullPointerException e) {
-			   empName.setText("Invalid empID");
-			   timeline = new Timeline(
-					   new KeyFrame (Duration.seconds(0.1), new KeyValue(inAndEnter.styleProperty(), "-fx-background-color: red;")),
-					   new KeyFrame(Duration.seconds(0.5), new KeyValue(inAndEnter.styleProperty(), "-fx-background-color: white;"))
-					   );
-					   timeline.setCycleCount(3);
-					   timeline.play(); 
-		   }	   
-	   }else if(promptMessage.getText() == "Enter Password") {
-		   //TODO Prompt the user to enter their password and check whether the password is correct.
-		   		//1.) Might want to add a button at this stage that goes back to the ID prompt in case another person needs to use the register
+	   switch(promptMessage.getText()) {
+	   		case "Enter employee ID":
+	   			try {
+	 			   currEmp = employees.get(data);
+	 			   if(!currEmp.clockedIn()) {
+	 				   empName.setText("Employee not on the clock");
+	 			   }else {
+	 				  empName.setText(currEmp.getName());
+		 			  promptMessage.setText("Enter Password");
+		 			  console.setText("");
+	 			   }
+	 		   }catch(NullPointerException e) {
+	 			   empName.setText("Invalid empID");
+	 			   runErrorAnimation();
+	 		   }
+	   			break;
+	   			
+	   		case "Enter Password":
+	   			if(!data.equals(currEmp.getPassword())) {
+	   				runErrorAnimation();
+	   			}else {
+	   				//TODO give access to the rest of the register's features to the employee
+	   			}
+	   			break;
 	   }
-	return;
-}
-
-   public void checkEmpID(String data) {
-	   
+   }
+   
+   void runErrorAnimation() {
+	   Timeline timeline = new Timeline(
+			   new KeyFrame (Duration.seconds(0.1), new KeyValue(inAndEnter.styleProperty(), "-fx-background-color: red;")),
+			   new KeyFrame(Duration.seconds(0.5), new KeyValue(inAndEnter.styleProperty(), "-fx-background-color: rgb(80, 175, 70);"))
+			   );
+			   timeline.setCycleCount(3);
+			   timeline.play(); 
    }
 
-public static void main(String[] args) throws FileNotFoundException{
-	//create an Employee object for using the information in the employeeData.txt file
-	File emps = new File("src/employeeData.txt");
-	Scanner scnr = new Scanner(emps);
-	
-	while(scnr.hasNext()) {
-		employees.put(scnr.next(), new Employee(scnr.next(), scnr.next()));
-	}
-	scnr.close();
-	
-	launch(args);
+   public static void main(String[] args) throws FileNotFoundException{
+		//create an Employee object for each employee using the information in the employeeData.txt file
+		File emps = new File("src/employeeData.txt");
+		Scanner scnr = new Scanner(emps);
+		
+		while(scnr.hasNext()) {
+			employees.put(scnr.next(), new Employee(scnr.next(), scnr.next()));
+		}
+		scnr.close();
+		
+		launch(args);
    }
 }
