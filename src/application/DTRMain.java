@@ -41,6 +41,8 @@ public class DTRMain extends Application{
 	   operations.setPadding(new Insets(10));
 	   punchBttn.getStyleClass().add("punchBttn");
 	   
+	   punchBttn.setOnAction(e -> clockInPg());
+	   
 	   //initialize and set up all specifications for the inAndEnter VBox
 	   inAndEnter = new VBox(10, promptMessage, console,  enter);
 	   inAndEnter.setPadding(new Insets(10));
@@ -63,7 +65,36 @@ public class DTRMain extends Application{
 	   primaryStage.show();
    }
 
-   private void checkInput() {
+   public void clockInPg() {
+	   Stage punches = new Stage();
+	   TextField user = new TextField();
+	   user.setPromptText("UserName");
+	   
+	   TextField psswrd = new TextField();
+	   psswrd.setPromptText("Password");
+	   
+	   Button clockIn = new Button("Clock In");
+	   Button clockOut = new Button("Clock Out");
+	   Button sBreak = new Button("Start Break");
+	   Button eBreak = new Button("End Break");
+	   Button sMeal = new Button("Start Meal");
+	   Button eMeal = new Button("End Meal");
+	   
+	   //Layout of the buttons and textFields
+	   VBox inputs = new VBox(10, user, psswrd);
+	   VBox lBttns = new VBox(10, clockIn, sBreak, sMeal);
+	   VBox rBttns = new VBox(10, clockOut, eBreak, eMeal);
+	   HBox bttns = new HBox(10, lBttns, rBttns);
+	   HBox inAndBttns = new HBox(50, inputs, bttns);
+	   
+	   VBox view = new VBox(inAndBttns);
+	   Scene scene = new Scene(view);
+	   punches.setTitle("Clock In");
+	   punches.setScene(scene);
+	   punches.show();
+}
+
+private void checkInput() {
 	   String data = console.getText();
 	   
 	   switch(promptMessage.getText()) {
