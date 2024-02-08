@@ -23,7 +23,7 @@ public class Employee {
 		this.clockedIn = true;
 	}
 	
-	boolean clockedIn() {
+	boolean isClockedIn() {
 		return this.clockedIn;
 	}
 }

@@ -25,7 +25,7 @@ public class DTRMain extends Application{
 	TextField console = new TextField("");
 	Label empName = new Label("");
 	Label promptMessage;
-	//VBox to hold the console where employees are to input data and the enter button
+	//VBox to hold the console where employees are to input data and the enter buttons
 	VBox inAndEnter;
 	Employee currEmp;
 	Button punchBttn;
@@ -65,15 +65,32 @@ public class DTRMain extends Application{
 	   primaryStage.show();
    }
 
+   String userID;
    public void clockInPg() {
 	   Stage punches = new Stage();
+	   Label message = new Label();
 	   TextField user = new TextField();
-	   user.setPromptText("UserName");
+	   user.setPromptText("UserID");
 	   
 	   TextField psswrd = new TextField();
 	   psswrd.setPromptText("Password");
 	   
 	   Button clockIn = new Button("Clock In");
+	   clockIn.setOnAction(e -> {
+		   userID = user.getText();
+		   
+		   if(userID == "") {
+			   message.setText("Please enter your userID");
+		   }else if(!employees.keySet().contains(userID)) {
+			   message.setText("Invalid userID");
+		   }else if(!employees.get(userID).getPassword().equals(psswrd.getText())) {
+			   message.setText("Invalid password");
+		   }else {
+			   employees.get(userID).clockIn();
+			   message.setText(employees.get(userID).getName());
+			   punches.close();
+		   }
+	   });
 	   Button clockOut = new Button("Clock Out");
 	   Button sBreak = new Button("Start Break");
 	   Button eBreak = new Button("End Break");
@@ -81,7 +98,7 @@ public class DTRMain extends Application{
 	   Button eMeal = new Button("End Meal");
 	   
 	   //Layout of the buttons and textFields
-	   VBox inputs = new VBox(10, user, psswrd);
+	   VBox inputs = new VBox(10, user, psswrd, message);
 	   VBox lBttns = new VBox(10, clockIn, sBreak, sMeal);
 	   VBox rBttns = new VBox(10, clockOut, eBreak, eMeal);
 	   HBox bttns = new HBox(10, lBttns, rBttns);
@@ -101,7 +118,7 @@ private void checkInput() {
 	   		case "Enter employee ID":
 	   			try {
 	 			   currEmp = employees.get(data);
-	 			   if(!currEmp.clockedIn()) {
+	 			   if(!currEmp.isClockedIn()) {
 	 				   empName.setText("Employee not on the clock");
 	 			   }else {
 	 				  empName.setText(currEmp.getName());
@@ -135,8 +152,8 @@ private void checkInput() {
 
    public static void main(String[] args) throws FileNotFoundException{
 		//create an Employee object for each employee using the information in the employeeData.txt file
-		File emps = new File("src/employeeData.txt");
-		Scanner scnr = new Scanner(emps);
+		File empInfo = new File("src/employeeData.txt");
+		Scanner scnr = new Scanner(empInfo);
 		
 		while(scnr.hasNext()) {
 			employees.put(scnr.next(), new Employee(scnr.next(), scnr.next()));
